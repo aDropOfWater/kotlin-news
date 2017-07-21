@@ -8,7 +8,11 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import github.com.kotlin_news.data.NewListByChannelRequest
 import kotlinx.android.synthetic.main.fra_main_new.*
+import kotlinx.android.synthetic.main.fragment_main2.*
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 
 /**
  * Created by guoshuaijie on 2017/7/21.
@@ -16,7 +20,7 @@ import kotlinx.android.synthetic.main.fra_main_new.*
 class MainNewFragment : Fragment() {
     var mSectionsPagerAdapter: SectionsPagerAdapter? = null
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fra_main_new, container,false)
+        return inflater.inflate(R.layout.fra_main_new, container, false)
     }
 
 
@@ -36,13 +40,10 @@ class MainNewFragment : Fragment() {
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
         override fun getItem(position: Int): android.support.v4.app.Fragment {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
             return PlaceholderFragment.newInstance(position + 1)
         }
 
         override fun getCount(): Int {
-            // Show 3 total pages.
             return 3
         }
 
@@ -66,6 +67,21 @@ class MainNewFragment : Fragment() {
 //            textView.text = getString(R.string.section_format, arguments.getInt(ARG_SECTION_NUMBER))
             return rootView
         }
+
+        override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            doAsync {
+                NewListByChannelRequest("headline", "T1348647909107", "0").execute()
+                uiThread {
+                    newRecyView.adapter=
+                }
+            }
+        }
+
+
+
+
+
 
         companion object {
             /**

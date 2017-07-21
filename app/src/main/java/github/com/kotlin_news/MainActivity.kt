@@ -14,7 +14,6 @@ class MainActivity : AppCompatActivity() {
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_home -> {
-                doAsync{ NewListByChannelRequest("headline","T1348647909107","0").execute()  }
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_dashboard -> {
