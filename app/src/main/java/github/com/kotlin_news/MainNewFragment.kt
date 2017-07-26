@@ -5,26 +5,42 @@ import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
+import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import github.com.kotlin_news.data.NewListByChannelRequest
+import github.com.kotlin_news.adapter.NewListAdapter
+import github.com.kotlin_news.data.server.NewListByChannelRequest
+import github.com.kotlin_news.data.newListItem
+import github.com.kotlin_news.domain.commands.RequestNewListCommand
+import github.com.kotlin_news.util.ctx
+import github.com.kotlin_news.util.getTimeFromeNew
+import github.com.kotlin_news.util.log
 import kotlinx.android.synthetic.main.fra_main_new.*
 import kotlinx.android.synthetic.main.fragment_main2.*
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
+import java.util.*
 
 /**
  * Created by guoshuaijie on 2017/7/21.
  */
 class MainNewFragment : Fragment() {
+
+
+    companion object {
+        val listOfTitle: Array<String> by lazy { App.instance.resources.getStringArray(R.array.news_channel_name_static) }
+    }
+
+
     var mSectionsPagerAdapter: SectionsPagerAdapter? = null
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fra_main_new, container, false)
     }
 
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mSectionsPagerAdapter = SectionsPagerAdapter(childFragmentManager)
 
@@ -33,27 +49,22 @@ class MainNewFragment : Fragment() {
         slidingTabs.setupWithViewPager(containerPager)
 
         slidingTabs.tabMode = TabLayout.MODE_FIXED
-
+        // val listOfTitle = view.ctx.resources.getStringArray(R.array.news_channel_name)
     }
 
 
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
-        override fun getItem(position: Int): android.support.v4.app.Fragment {
-            return PlaceholderFragment.newInstance(position + 1)
+        override fun getItem(position: Int): PlaceholderFragment {
+            return PlaceholderFragment.newInstance(listOfTitle[position])
         }
 
         override fun getCount(): Int {
-            return 3
+            return listOfTitle.size
         }
 
         override fun getPageTitle(position: Int): CharSequence? {
-            when (position) {
-                0 -> return "SECTION 1"
-                1 -> return "SECTION 2"
-                2 -> return "SECTION 3"
-            }
-            return null
+            return listOfTitle[position]
         }
     }
 
@@ -63,24 +74,59 @@ class MainNewFragment : Fragment() {
         override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                                   savedInstanceState: Bundle?): View? {
             val rootView = inflater!!.inflate(R.layout.fragment_main2, container, false)
-//            val textView = rootView.findViewById(R.id.section_label) as TextView
-//            textView.text = getString(R.string.section_format, arguments.getInt(ARG_SECTION_NUMBER))
             return rootView
         }
 
+        var startPage = 0
+        var type = "list"
+        var id = ""
         override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
+            newRecyView.layoutManager = LinearLayoutManager(view?.ctx)
+            getData()
+        }
+
+        fun getData() {
+            var newLists: List<newListItem>
             doAsync {
-                NewListByChannelRequest("headline", "T1348647909107", "0").execute()
-                uiThread {
-                    newRecyView.adapter=
+                if (convertFromNameToTypeAndId(arguments.getString(CHANNEL_NAME))) {
+                    newLists =  RequestNewListCommand(type,id,startPage).execute()
+                   // newLists = NewListByChannelRequest(type, id, startPage).execute()
+                    uiThread {
+                        newRecyView.adapter = NewListAdapter(newLists) {
+                            val timeFromeNew = Date().getTimeFromeNew(it.timeLong)
+                            log("timeFromeNew:$timeFromeNew-----System:${System.currentTimeMillis()}")
+                            log("it.ptime:${it.ptime}--it.timeLong:${it.timeLong}--it.publishtime:${it.publishtime}")
+                        }
+                    }
+                } else {
+                    activity.toast("参数初始化错误")
                 }
             }
         }
 
+        private fun convertFromNameToTypeAndId(channl: String): Boolean {
+            when (channl) {
+                "头条" -> {
+                    type = "headline";id = "T1348647909107"
+                }
+                "科技" -> {
+                    id = "T1348649580692"
+                }
+                "财经" -> {
+                    id = "T1348648756099"
+                }
+                "军事" -> {
+                    id = "T1348648141035"
+                }
+                "体育" -> {
+                    id = "T1348649079062"
+                }
+                else -> return false
+            }
+            return true
 
-
-
+        }
 
 
         companion object {
@@ -88,16 +134,16 @@ class MainNewFragment : Fragment() {
              * The fragment argument representing the section number for this
              * fragment.
              */
-            private val ARG_SECTION_NUMBER = "section_number"
+            private val CHANNEL_NAME = "channel_name"
 
             /**
              * Returns a new instance of this fragment for the given section
              * number.
              */
-            fun newInstance(sectionNumber: Int): PlaceholderFragment {
+            fun newInstance(channel: String): PlaceholderFragment {
                 val fragment = PlaceholderFragment()
                 val args = Bundle()
-                args.putInt(ARG_SECTION_NUMBER, sectionNumber)
+                args.putString(CHANNEL_NAME, channel)
                 fragment.arguments = args
                 return fragment
             }

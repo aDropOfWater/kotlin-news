@@ -3,10 +3,6 @@ package github.com.kotlin_news
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
-import android.view.MenuItem
-import android.widget.TextView
-import github.com.kotlin_news.data.NewListByChannelRequest
-import org.jetbrains.anko.doAsync
 
 class MainActivity : AppCompatActivity() {
 
@@ -14,6 +10,13 @@ class MainActivity : AppCompatActivity() {
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_home -> {
+
+//                val switchTimeStrToLong = "2017-07-24 16:01:26".switchTimeStrToLong()
+//                val switchTimeStrToLong = TimeUtil.switchTimeStrToLong("2017-07-24 16:01:26")
+//                log(switchTimeStrToLong.toString())
+//                javaCodeTest.main(null)
+//                val sdf= SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+//                log(sdf.format(switchTimeStrToLong))
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_dashboard -> {
