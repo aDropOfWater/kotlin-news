@@ -22,7 +22,8 @@ class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
         log("开始从本地数据库获取数据..")
         var newList = ArrayList<newListItem>()
         newdbHelper.use {
-            select(id).whereSimple("(_id >= ?) and (_id < ?)", startPage.toString(), (startPage + 22).toString())
+//            select(id).whereSimple("(_id >= ?) and (_id < ?)", startPage.toString(), (startPage + 22).toString())
+            select(id).whereSimple("order by _id desc limit ?,20",startPage.toString())
                     .parseList {
                         val item = newListItem(it[newListTable.postid].toString(),
                                 it[newListTable.title].toString(),
@@ -31,12 +32,14 @@ class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
                                 it[newListTable.ptime].toString(), null)
                         newList.add(item)
                     }
+            select(id).whereSimple("order by _id desc limit ?,20",startPage.toString())
             newList.forEach {
                 if(it.digest.isNullOrEmpty()){
                     var photoList = ArrayList<photoset>()
                     select(newListPhotoSetTable.NAME).whereSimple("${newListPhotoSetTable.postid} = ?",it.postid)
                             .parseList{
-                                val item = photoset(it[newListPhotoSetTable.title].toString(),
+                                val item = photoset(it[newListPhotoSetTable.skipID].toString(),
+                                        it[newListPhotoSetTable.title].toString(),
                                         it[newListPhotoSetTable.imgsrc].toString())
                                 photoList.add(item)
                             }
@@ -63,6 +66,7 @@ class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
                     val outIt = it
                     it.ads?.forEach {
                         insert(newListPhotoSetTable.NAME,
+                                newListPhotoSetTable.skipID to it.skipID,
                                 newListPhotoSetTable.postid to outIt.postid,
                                 newListPhotoSetTable.title to it.title,
                                 newListPhotoSetTable.imgsrc to it.imgsrc)

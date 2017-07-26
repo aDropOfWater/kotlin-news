@@ -25,7 +25,8 @@ class NewDbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx,
          */
         tableNames.forEach {
             db.createTable(it, true,
-                    newListTable.postid to TEXT + PRIMARY_KEY,
+                    newListTable.ID to INTEGER + PRIMARY_KEY,
+                    newListTable.postid to TEXT + UNIQUE,
                     newListTable.digest to TEXT,
                     newListTable.imgsrc to TEXT,
                     newListTable.ptime to TEXT,
@@ -33,7 +34,8 @@ class NewDbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx,
         }
 
         db.createTable(newListPhotoSetTable.NAME, true,
-                newListPhotoSetTable.skipID to TEXT + PRIMARY_KEY,
+                newListPhotoSetTable.ID to INTEGER + PRIMARY_KEY,
+                newListPhotoSetTable.skipID to TEXT + UNIQUE,
                 newListPhotoSetTable.postid to TEXT,
                 newListPhotoSetTable.imgsrc to TEXT,
                 newListPhotoSetTable.title to TEXT)

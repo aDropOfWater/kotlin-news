@@ -14,5 +14,5 @@ data class newListItem(val postid: String, val title: String, val digest: String
 /**
  * 新闻列表中夹杂的图集
  */
-data class photoset(val title: String, val imgsrc: String)
+data class photoset(val skipID: String,val title: String, val imgsrc: String)
 

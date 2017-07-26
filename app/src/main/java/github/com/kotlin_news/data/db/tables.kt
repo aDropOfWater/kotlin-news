@@ -8,6 +8,7 @@ package github.com.kotlin_news.data.db
  */
 object newListTable{
 //    val NAME = "newList"
+    val ID = "_id"
 
     val postid = "postid"
     val title = "title"
@@ -17,6 +18,7 @@ object newListTable{
 }
 object newListPhotoSetTable{
     val NAME = "photoset"
+    val ID = "_id"
 
     val postid = "postid"
     val skipID = "skipID"
