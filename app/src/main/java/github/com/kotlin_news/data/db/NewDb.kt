@@ -8,6 +8,7 @@ import github.com.kotlin_news.domain.datasource.NewDataSource
 import github.com.kotlin_news.util.isNullOrEmpty
 import github.com.kotlin_news.util.log
 import github.com.kotlin_news.util.parseList
+import org.jetbrains.anko.db.SqlOrderDirection
 import org.jetbrains.anko.db.insert
 import org.jetbrains.anko.db.select
 import org.jetbrains.anko.toast
@@ -20,34 +21,35 @@ import java.util.ArrayList
 class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
     override fun requestNewList(type: String, id: String, startPage: Int): List<newListItem>? {
         log("开始从本地数据库获取数据..")
+        val start = System.currentTimeMillis()
         var newList = ArrayList<newListItem>()
         newdbHelper.use {
-//            select(id).whereSimple("(_id >= ?) and (_id < ?)", startPage.toString(), (startPage + 22).toString())
-            select(id).whereSimple("order by _id desc limit ?,20",startPage.toString())
+            select(id).orderBy("_id",SqlOrderDirection.DESC).limit(startPage,App.newItemLoadNumber)
                     .parseList {
                         val item = newListItem(it[newListTable.postid].toString(),
                                 it[newListTable.title].toString(),
                                 it[newListTable.digest].toString(),
                                 it[newListTable.imgsrc].toString(),
                                 it[newListTable.ptime].toString(), null)
+                        log("数据库获取到数据:$item")
                         newList.add(item)
                     }
-            select(id).whereSimple("order by _id desc limit ?,20",startPage.toString())
             newList.forEach {
-                if(it.digest.isNullOrEmpty()){
+                if (it.digest.isNullOrEmpty()) {
                     var photoList = ArrayList<photoset>()
-                    select(newListPhotoSetTable.NAME).whereSimple("${newListPhotoSetTable.postid} = ?",it.postid)
-                            .parseList{
+                    select(newListPhotoSetTable.NAME).whereSimple("${newListPhotoSetTable.postid} = ?", it.postid)
+                            .parseList {
                                 val item = photoset(it[newListPhotoSetTable.skipID].toString(),
                                         it[newListPhotoSetTable.title].toString(),
                                         it[newListPhotoSetTable.imgsrc].toString())
                                 photoList.add(item)
                             }
-                    it.ads=photoList
+                    it.ads = photoList
                 }
             }
         }
-        if(!newList.isNullOrEmpty())log("本地获取数据成功")else log("本地获取数据失败")
+        if (!newList.isNullOrEmpty()) log("本地获取数据成功") else log("本地获取数据失败")
+        log("数据库查询耗时：${System.currentTimeMillis()-start}")
         return newList
     }
 
@@ -56,7 +58,7 @@ class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
         try {
             beginTransaction()
             result.forEach {
-               val ins = insert(channlId,
+                val ins = insert(channlId,
                         newListTable.title to it.title,
                         newListTable.ptime to it.ptime,
                         newListTable.digest to it.digest,
@@ -72,6 +74,7 @@ class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
                                 newListPhotoSetTable.imgsrc to it.imgsrc)
                     }
                 }
+                if (ins > 0) it.insertSuccess = true
                 log("数据插入结果:$ins")
             }
             setTransactionSuccessful()
@@ -81,9 +84,12 @@ class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
             insert(errorTable.NAME,
                     errorTable.msg to "数据固化出错",
                     errorTable.meta to result.toString())
-        }finally {
+        } finally {
             endTransaction()
         }
+        return@use result.filter {
+            if(it.insertSuccess) log("插入成功的数据:$it")
+            it.insertSuccess }
     }
 
 }

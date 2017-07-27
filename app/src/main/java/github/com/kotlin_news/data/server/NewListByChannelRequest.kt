@@ -3,6 +3,7 @@ package github.com.kotlin_news.data.server
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import github.com.kotlin_news.App
 import github.com.kotlin_news.data.newListItem
 import github.com.kotlin_news.util.log
 import github.com.kotlin_news.util.obtainNewsStr
@@ -20,7 +21,7 @@ class NewListByChannelRequest(val type: String, val channlId: String, val startP
     }
 
     fun execute(): List<newListItem> {
-        val url = "$NETEAST_HOST/nc/article/$type/$channlId/$startPage-20.html"
+        val url = "$NETEAST_HOST/nc/article/$type/$channlId/$startPage-${App.newItemLoadNumber}.html"
         val forecastJsonStr = URL(url).readText()
         log("从网络获取到的数据$channlId：$forecastJsonStr")
         val type = object : TypeToken<List<newListItem>>() {}.type

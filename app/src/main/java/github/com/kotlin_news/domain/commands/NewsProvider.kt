@@ -1,26 +1,23 @@
 package github.com.kotlin_news.domain.commands
 
-import android.support.v4.util.SimpleArrayMap
+import github.com.kotlin_news.NewListProduceEvent
 import github.com.kotlin_news.data.db.NewDb
 import github.com.kotlin_news.data.server.NewServer
+import github.com.kotlin_news.dataSources
 import github.com.kotlin_news.domain.datasource.NewDataSource
-import github.com.kotlin_news.util.getTimeFromeNew
-import github.com.kotlin_news.util.isNullOrEmpty
-import github.com.kotlin_news.util.switchTimeStrToLong
+import github.com.kotlin_news.util.*
 import java.util.*
 
 /**
  * Created by guoshuaijie on 2017/7/25.
  */
-class NewsProvider(val sources: Map<dataSources, NewDataSource> = NewsProvider.SOURCES) {
+class NewsProvider(val sources: List<NewDataSource> = NewsProvider.SOURCES) {
     companion object {
         private val SOURCES by lazy {
-            mapOf(dataSources.DATABASE to NewDb(),
-                    dataSources.NETWORK to NewServer())
-//            listOf(
-//                    NewDb(),
-//                    NewServer()
-//            )
+            listOf(
+                    NewDb()
+                    , NewServer()
+            )
         }
     }
 
@@ -34,6 +31,7 @@ class NewsProvider(val sources: Map<dataSources, NewDataSource> = NewsProvider.S
                 it.publishtime = timeFromeNew
             }
             var filterNot = res.filterNot {
+                log("${it.digest.isNullOrEmpty() && it.ads.isNullOrEmpty()}")
                 it.digest.isNullOrEmpty() && it.ads.isNullOrEmpty()
             }
             filterNot = filterNot.sortedByDescending { it.timeLong }
@@ -42,29 +40,15 @@ class NewsProvider(val sources: Map<dataSources, NewDataSource> = NewsProvider.S
                 instance.timeInMillis = it.timeLong
                 //log("it.ptime:${it.ptime}--it.timeLong:${it.timeLong}--instance.time:${instance.time}")
             }
+            post(NewListProduceEvent(if (it is NewDb) dataSources.DATABASE else dataSources.NETWORK, filterNot,channlId))
         }
-        //if (!res.isNullOrEmpty()) res else null
     }
 
-    //
-    private fun <T : Any> requestToSources(f: (NewDataSource) -> T?): SimpleArrayMap<dataSources, T?> = sources.firstResult { f(it) }
+    private fun  requestToSources(f: (NewDataSource) -> Unit): Unit = sources.firstResult { f(it) }
 
-
-    private fun <T, R : Any> Map<dataSources, T>.firstResult(predicate: (T) -> R?): SimpleArrayMap<dataSources, R?> {
-        val mm = SimpleArrayMap<dataSources, R?>()
-        for ((key, value) in this) {
-            mm.put(key, predicate(value))
+    private fun <T : Any> Iterable<T>.firstResult(predicate: (T) -> Unit): Unit {
+        for (element in this) {
+            predicate(element)
         }
-        return mm
     }
-}
-
-/**
- * 数据来源
- */
-enum class dataSources {
-    //本地数据
-    DATABASE,
-    //网络数据
-    NETWORK
 }

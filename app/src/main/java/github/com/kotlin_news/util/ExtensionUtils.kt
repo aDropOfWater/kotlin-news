@@ -1,11 +1,14 @@
 package github.com.kotlin_news.util
 
 import android.content.Context
+import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import android.widget.Toast
 import com.google.gson.JsonParser
 import com.squareup.picasso.Picasso
+import org.jetbrains.anko.toast
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -18,6 +21,8 @@ val View.ctx: Context
 fun ImageView.setImag(iconUrl: String) {
     Picasso.with(ctx).load(iconUrl).into(this)
 }
+
+fun Fragment.toast(message: CharSequence) = Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
 
 
 fun Any.log(msg: String?) {

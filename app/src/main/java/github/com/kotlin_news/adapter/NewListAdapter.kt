@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import github.com.kotlin_news.R
-import github.com.kotlin_news.util.ctx
 import github.com.kotlin_news.data.newListItem
+import github.com.kotlin_news.util.ctx
 import github.com.kotlin_news.util.isNullOrEmpty
 import github.com.kotlin_news.util.log
 import github.com.kotlin_news.util.setImag
@@ -20,10 +20,12 @@ class NewListAdapter(val itemClick: (newListItem) -> Unit) : RecyclerView.Adapte
     var newList= ArrayList<newListItem>()
 
     fun addAll(elements: List<newListItem>, location: Int = itemCount) {
-        val addAll = newList.addAll(location, elements)
+        val filter = elements.filter { !newList.contains(it) }
+        val addAll = newList.addAll(location, filter)
         log("数据添加${if(addAll)"成功" else "失败"}")
-        notifyDataSetChanged()
+        notifyItemRangeInserted(location,elements.size)
     }
+
 
     override fun getItemCount() = if (!newList.isNullOrEmpty()) newList.size else 0
 
