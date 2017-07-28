@@ -23,9 +23,10 @@ class NewListByChannelRequest(val type: String, val channlId: String, val startP
     fun execute(): List<newListItem> {
         val url = "$NETEAST_HOST/nc/article/$type/$channlId/$startPage-${App.newItemLoadNumber}.html"
         val forecastJsonStr = URL(url).readText()
-        log("从网络获取到的数据$channlId：$forecastJsonStr")
+        log("从网络获取到的数据...")
         val type = object : TypeToken<List<newListItem>>() {}.type
         val listItem = gson.fromJson<List<newListItem>>(forecastJsonStr.obtainNewsStr(channlId), type)
+        log("从网络获取到${listItem.size}条数据")
 //        listItem.map {
 //            it.timeLong = it.ptime.switchTimeStrToLong()
 //            var timeFromeNew = Date().getTimeFromeNew(it.timeLong)

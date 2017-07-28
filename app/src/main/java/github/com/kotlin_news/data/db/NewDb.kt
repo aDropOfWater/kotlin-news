@@ -31,7 +31,6 @@ class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
                                 it[newListTable.digest].toString(),
                                 it[newListTable.imgsrc].toString(),
                                 it[newListTable.ptime].toString(), null)
-                        log("数据库获取到数据:$item")
                         newList.add(item)
                     }
             newList.forEach {
@@ -47,8 +46,10 @@ class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
                     it.ads = photoList
                 }
             }
+
         }
-        if (!newList.isNullOrEmpty()) log("本地获取数据成功") else log("本地获取数据失败")
+        log("数据库获取到数据:$newList")
+        if (!newList.isNullOrEmpty()) log("本地获取数据成功 获取${newList.size}条数据") else log("本地获取数据失败")
         log("数据库查询耗时：${System.currentTimeMillis()-start}")
         return newList
     }
@@ -88,7 +89,6 @@ class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
             endTransaction()
         }
         return@use result.filter {
-            if(it.insertSuccess) log("插入成功的数据:$it")
             it.insertSuccess }
     }
 

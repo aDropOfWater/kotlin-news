@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import com.google.gson.JsonParser
 import com.squareup.picasso.Picasso
-import org.jetbrains.anko.toast
+import github.com.kotlin_news.R
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -19,7 +19,12 @@ val View.ctx: Context
     get() = context
 
 fun ImageView.setImag(iconUrl: String) {
-    Picasso.with(ctx).load(iconUrl).into(this)
+    if (iconUrl.isNullOrEmpty()) setImageResource(R.mipmap.ic_image_loading) else Picasso.with(ctx).load(iconUrl)
+            .error(R.mipmap.ic_empty_picture)
+            .placeholder(R.mipmap.ic_image_loading)
+            .fit().into(this)
+
+
 }
 
 fun Fragment.toast(message: CharSequence) = Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
@@ -53,12 +58,13 @@ fun Date.getTimeFromeNew(oldTime: Long): String {
 }
 
 fun String.switchTimeStrToLong(format: String = "yyyy-MM-dd HH:mm:ss"): Long {
-    val sdf = SimpleDateFormat(format,Locale.getDefault())
+    val sdf = SimpleDateFormat(format, Locale.getDefault())
     var d: Date = sdf.parse(this)
     return d.time
 }
 
-fun<T : Any> List<T>?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
+fun <T : Any> List<T>?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
+
 
 
 

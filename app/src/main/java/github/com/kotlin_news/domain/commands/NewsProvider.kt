@@ -16,7 +16,8 @@ class NewsProvider(val sources: List<NewDataSource> = NewsProvider.SOURCES) {
         private val SOURCES by lazy {
             listOf(
                     NewDb()
-                    , NewServer()
+                    ,
+                    NewServer()
             )
         }
     }
@@ -31,7 +32,6 @@ class NewsProvider(val sources: List<NewDataSource> = NewsProvider.SOURCES) {
                 it.publishtime = timeFromeNew
             }
             var filterNot = res.filterNot {
-                log("${it.digest.isNullOrEmpty() && it.ads.isNullOrEmpty()}")
                 it.digest.isNullOrEmpty() && it.ads.isNullOrEmpty()
             }
             filterNot = filterNot.sortedByDescending { it.timeLong }

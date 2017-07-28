@@ -15,6 +15,7 @@ class NewServer(val newDb: NewDb = NewDb()): NewDataSource {
         log("网络查询耗时：${System.currentTimeMillis()-start}")
         val newList = newDb.saveNewList(result, channlId)
         log("数据固化耗时：${System.currentTimeMillis()-start}")
+        log("数据库存储时候过滤掉${result.size-newList.size}条本地存在的数据，还剩下${newList.size}条数据")
         return newList
     }
 }

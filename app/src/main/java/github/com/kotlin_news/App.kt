@@ -1,7 +1,9 @@
 package github.com.kotlin_news
 
 import android.app.Application
+import com.squareup.picasso.Picasso
 import github.com.kotlin_news.util.DelegatesExt
+import github.com.kotlin_news.util.setImag
 import org.greenrobot.eventbus.EventBus
 
 /**
@@ -19,5 +21,6 @@ class App : Application(){
         super.onCreate()
         instance = this
         EventBus.builder().throwSubscriberException(true)
+        Picasso.with(this).setIndicatorsEnabled(true)
     }
 }

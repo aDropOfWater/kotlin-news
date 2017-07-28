@@ -3,6 +3,7 @@ package github.com.kotlin_news
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
+import github.com.kotlin_news.ui.news.MainNewFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -12,7 +13,7 @@ class MainActivity : AppCompatActivity() {
             R.id.navigation_home -> {
 
 //                val switchTimeStrToLong = "2017-07-24 16:01:26".switchTimeStrToLong()
-//                val switchTimeStrToLong = TimeUtil.switchTimeStrToLong("2017-07-24 16:01:26")
+//                val switchTimeStrToLong = JavaUtil.switchTimeStrToLong("2017-07-24 16:01:26")
 //                log(switchTimeStrToLong.toString())
 //                javaCodeTest.main(null)
 //                val sdf= SimpleDateFormat("yyyy-MM-dd HH:mm:ss")

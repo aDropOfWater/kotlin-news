@@ -3,7 +3,7 @@ package github.com.kotlin_news;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import github.com.kotlin_news.util.TimeUtil;
+import github.com.kotlin_news.util.JavaUtil;
 
 /**
  * Created by guoshuaijie on 2017/7/24.
@@ -16,7 +16,7 @@ public class javaCodeTest {
 
 //        System.out.println("kotlin："+ExtensionUtilsKt.switchTimeStrToLong("2017-07-24 16:01:26","yyyy-MM-dd HH:mm:ss"));
 
-        System.out.println(TimeUtil.switchTimeStrToLong("2017-07-25 09:41:15"));
+        System.out.println(JavaUtil.switchTimeStrToLong("2017-07-25 09:41:15"));
 
 
         System.out.println(System.currentTimeMillis());
