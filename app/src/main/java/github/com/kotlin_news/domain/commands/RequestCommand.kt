@@ -4,17 +4,20 @@ package github.com.kotlin_news.domain.commands
  * Created by guoshuaijie on 2017/7/25.
  * type: String, channlId: String, startPage: Int
  */
-class RequestNewListCommand(
-        val type: String,
-        val channlId: String,
-        val startPage: Int,
-        val newsProvider: NewsProvider = NewsProvider())
-    : Command {
-    override fun execute() {
-        newsProvider.requestNewList(type, channlId, startPage)
+class RequestCommand {
+    companion object {
+        private val newsProvider: NewsProvider = NewsProvider()
+        fun requestNewList(type: String,
+                           channlId: String,
+                           startPage: Int) {
+            newsProvider.requestNewList(type, channlId, startPage)
+        }
+
+        fun requestNewDetail(newId: String) = newsProvider.requestNewDetail(newId)
+
     }
 }
-//class RequestNewListCommand(
+//class RequestCommand(
 //        val type: String,
 //        val channlId: String,
 //        val startPage: Int,

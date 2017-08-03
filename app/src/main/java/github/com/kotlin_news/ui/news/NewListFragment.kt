@@ -1,6 +1,13 @@
 package github.com.kotlin_news.ui.news
 
+
+import android.app.Activity
+import android.app.ActivityOptions
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.Fragment
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
@@ -12,34 +19,45 @@ import android.view.ViewGroup
 import github.com.kotlin_news.App
 import github.com.kotlin_news.NewListProduceEvent
 import github.com.kotlin_news.R
-import github.com.kotlin_news.ui.news.adapter.NewListAdapter
 import github.com.kotlin_news.dataSources
-import github.com.kotlin_news.domain.commands.RequestNewListCommand
+import github.com.kotlin_news.domain.commands.RequestCommand
+import github.com.kotlin_news.ui.news.adapter.NewListAdapter
 import github.com.kotlin_news.util.ctx
-import github.com.kotlin_news.util.getTimeFromeNew
 import github.com.kotlin_news.util.log
 import github.com.kotlin_news.util.toast
-import kotlinx.android.synthetic.main.fragment_main2.*
+import kotlinx.android.synthetic.main.fragment_new_list.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
-import java.util.*
 
-class NewListFragment : Fragment() {
+class  NewListFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val rootView = inflater!!.inflate(R.layout.fragment_main2, container, false)
+        val rootView = inflater!!.inflate(R.layout.fragment_new_list, container, false)
         return rootView
     }
 
-    val newListAdapter = NewListAdapter {
-        val timeFromeNew = Date().getTimeFromeNew(it.timeLong)
-        log("timeFromeNew:$timeFromeNew-----System:${System.currentTimeMillis()}")
-        log("it.ptime:${it.ptime}--it.timeLong:${it.timeLong}--it.publishtime:${it.publishtime}")
+    val newListAdapter = NewListAdapter { v,it->
+        val intent = Intent(activity,NewDetailActivity::class.java)
+        intent.putExtra("id" , it.postid)
+        intent.putExtra("url" , it.imgsrc)
+//        startActivity(intent)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val options = ActivityOptions.makeSceneTransitionAnimation(activity, v, App.TRANSITION_ANIMATION_NEWS_PHOTOS)
+            startActivity(intent, options.toBundle())
+        } else {
+            //让新的Activity从一个小的范围扩大到全屏
+            val options = ActivityOptionsCompat.makeScaleUpAnimation(v, v.width / 2, v.height / 2, 0, 0)
+            ActivityCompat.startActivity(activity, intent, options.toBundle())
+        }
+
+
+
     }
     lateinit var linearLayoutManager: LinearLayoutManager
     var lastVisibleItem = -1
@@ -105,7 +123,7 @@ class NewListFragment : Fragment() {
         log("开始获取：${arguments.getString(CHANNEL_NAME)}  的数据,startPage=$startPage-----refreshLayout.isRefreshing=${refreshLayout.isRefreshing}")
         doAsync {
             if (convertFromNameToTypeAndId(arguments.getString(CHANNEL_NAME))) {
-                RequestNewListCommand(type, id, if (refreshLayout.isRefreshing) 0 else startPage).execute()
+                RequestCommand.requestNewList(type, id, if (refreshLayout.isRefreshing) 0 else startPage)
             } else {
                 activity.toast("参数初始化错误")
             }

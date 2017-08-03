@@ -2,6 +2,7 @@ package github.com.kotlin_news.data.db
 
 import android.text.TextUtils
 import github.com.kotlin_news.App
+import github.com.kotlin_news.data.newDeatilBean
 import github.com.kotlin_news.data.newListItem
 import github.com.kotlin_news.data.photoset
 import github.com.kotlin_news.domain.datasource.NewDataSource
@@ -19,12 +20,16 @@ import java.util.ArrayList
  * Created by guoshuaijie on 2017/7/25.
  */
 class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
+    override fun requestNewDetail(id: String): newDeatilBean? {
+        return null
+    }
+
     override fun requestNewList(type: String, id: String, startPage: Int): List<newListItem>? {
         log("开始从本地数据库获取数据..")
         val start = System.currentTimeMillis()
         var newList = ArrayList<newListItem>()
         newdbHelper.use {
-            select(id).orderBy("_id",SqlOrderDirection.DESC).limit(startPage,App.newItemLoadNumber)
+            select(id).orderBy("_id", SqlOrderDirection.DESC).limit(startPage, App.newItemLoadNumber)
                     .parseList {
                         val item = newListItem(it[newListTable.postid].toString(),
                                 it[newListTable.title].toString(),
@@ -50,7 +55,7 @@ class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
         }
         log("数据库获取到数据:$newList")
         if (!newList.isNullOrEmpty()) log("本地获取数据成功 获取${newList.size}条数据") else log("本地获取数据失败")
-        log("数据库查询耗时：${System.currentTimeMillis()-start}")
+        log("数据库查询耗时：${System.currentTimeMillis() - start}")
         return newList
     }
 
@@ -89,7 +94,8 @@ class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
             endTransaction()
         }
         return@use result.filter {
-            it.insertSuccess }
+            it.insertSuccess
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package github.com.kotlin_news.domain.datasource
 
+import github.com.kotlin_news.data.newDeatilBean
 import github.com.kotlin_news.data.newListItem
 
 /**
@@ -7,4 +8,6 @@ import github.com.kotlin_news.data.newListItem
  */
 interface NewDataSource {
     fun requestNewList(type: String, id: String, startPage: Int): List<newListItem>?
+
+    fun requestNewDetail(id: String): newDeatilBean?
 }

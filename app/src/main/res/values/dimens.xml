@@ -6,4 +6,6 @@
     <dimen name="appbar_padding_top">8dp</dimen>
     <dimen name="text_size_list_item_title">18sp</dimen>
     <dimen name="text_size_list_item_time_hint">8sp</dimen>
+    <dimen name="text_size_new_detail_title">17sp</dimen>
+    <dimen name="text_size_new_detail_content">15sp</dimen>
 </resources>
