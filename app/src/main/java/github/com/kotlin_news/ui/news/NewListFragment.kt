@@ -40,17 +40,20 @@ class  NewListFragment : Fragment() {
         return rootView
     }
 
-    val newListAdapter = NewListAdapter { v,it->
+    val newListAdapter = NewListAdapter { v, (postid, _, digest, imgsrc) ->
+        if(digest.isNullOrEmpty()){
+            val intent = Intent(activity,NewPhotoDetailActivity::class.java)
+            intent.putExtra("id" , postid)
+            startActivity(intent)
+            return@NewListAdapter
+        }
         val intent = Intent(activity,NewDetailActivity::class.java)
-        intent.putExtra("id" , it.postid)
-        intent.putExtra("url" , it.imgsrc)
-//        startActivity(intent)
-
+        intent.putExtra("id" , postid)
+        intent.putExtra("url" , imgsrc)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val options = ActivityOptions.makeSceneTransitionAnimation(activity, v, App.TRANSITION_ANIMATION_NEWS_PHOTOS)
             startActivity(intent, options.toBundle())
         } else {
-            //让新的Activity从一个小的范围扩大到全屏
             val options = ActivityOptionsCompat.makeScaleUpAnimation(v, v.width / 2, v.height / 2, 0, 0)
             ActivityCompat.startActivity(activity, intent, options.toBundle())
         }

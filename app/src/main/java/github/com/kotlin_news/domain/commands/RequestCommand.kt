@@ -15,6 +15,8 @@ class RequestCommand {
 
         fun requestNewDetail(newId: String) = newsProvider.requestNewDetail(newId)
 
+        fun requestNewPhotosDetail(newId: String) = newsProvider.requestNewPhotosDetail(newId)
+
     }
 }
 //class RequestCommand(

@@ -14,7 +14,7 @@ import kotlinx.android.synthetic.main.item_new_image.view.*
  * Created by guoshuaijie on 2017/7/21.
  * 新闻列表适配器
  */
-class NewListAdapter(val itemClick: (View,newListItem) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class NewListAdapter(val itemClick: (View, newListItem) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     var newList = ArrayList<newListItem>()
     /**
      * 图文item
@@ -38,13 +38,17 @@ class NewListAdapter(val itemClick: (View,newListItem) -> Unit) : RecyclerView.A
     }
 
     override fun getItemViewType(position: Int) = when (position) {
-        in 0 until  newList.size -> if (newList[position].ads.isNullOrEmpty()) TYPE_IMAGE_TEXT else TYPE_IMAGE
+        in 0 until newList.size -> {
+            val type = if (newList[position].digest.isNullOrEmpty()) TYPE_IMAGE else TYPE_IMAGE_TEXT
+            log("${newList[position].title} 的holder类型是$type")
+            type
+        }
         newList.size -> TYPE_FOOTER
         else -> TYPE_FOOTER
     }
 
 
-    override fun getItemCount() = if (!newList.isNullOrEmpty()) newList.size +1 else 0
+    override fun getItemCount() = if (!newList.isNullOrEmpty()) newList.size + 1 else 0
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
@@ -76,24 +80,25 @@ class NewListAdapter(val itemClick: (View,newListItem) -> Unit) : RecyclerView.A
     }
 
 
-    class ImageTextViewHolder(view: View, val itemClick: (View,newListItem) -> Unit) : RecyclerView.ViewHolder(view) {
+    class ImageTextViewHolder(view: View, val itemClick: (View, newListItem) -> Unit) : RecyclerView.ViewHolder(view) {
         fun bindNewItem(newListItem: newListItem) {
             with(itemView) {
                 newImage.setImag(newListItem.imgsrc)
                 newTitle.text = newListItem.title
                 newTime.text = newListItem.publishtime
-                itemView.setOnClickListener { itemClick(newImage,newListItem) }
+                itemView.setOnClickListener { itemClick(newImage, newListItem) }
             }
         }
     }
 
-    class ImageViewHolder(view: View, val itemClick: (View,newListItem) -> Unit) : RecyclerView.ViewHolder(view) {
+    class ImageViewHolder(view: View, val itemClick: (View, newListItem) -> Unit) : RecyclerView.ViewHolder(view) {
         val PhotoThreeHeight = JavaUtil.dip2px(90)
         val PhotoTwoHeight = JavaUtil.dip2px(120)
         val PhotoOneHeight = JavaUtil.dip2px(150)
 
         fun bindNewItem(newListItem: newListItem) {
             with(itemView) {
+                setOnClickListener { itemClick(itemView, newListItem) }
                 newListItem.ads?.let {
                     val layoutParams = llImageGroup.layoutParams
                     when (it.size) {
@@ -104,18 +109,18 @@ class NewListAdapter(val itemClick: (View,newListItem) -> Unit) : RecyclerView.A
                             itemView.visibility = View.VISIBLE
                             layoutParams.height = PhotoOneHeight
                             newImageLeft.setImag(it[0].imgsrc)
-                            newImageLeft.visibility=View.VISIBLE
-                            newImageMiddle.visibility=View.GONE
-                            newImageRight.visibility=View.GONE
+                            newImageLeft.visibility = View.VISIBLE
+                            newImageMiddle.visibility = View.GONE
+                            newImageRight.visibility = View.GONE
                         }
                         2 -> {
                             itemView.visibility = View.VISIBLE
                             layoutParams.height = PhotoTwoHeight
                             newImageLeft.setImag(it[0].imgsrc)
                             newImageMiddle.setImag(it[1].imgsrc)
-                            newImageLeft.visibility=View.VISIBLE
-                            newImageMiddle.visibility=View.VISIBLE
-                            newImageRight.visibility=View.GONE
+                            newImageLeft.visibility = View.VISIBLE
+                            newImageMiddle.visibility = View.VISIBLE
+                            newImageRight.visibility = View.GONE
                         }
                         else -> {
                             itemView.visibility = View.VISIBLE
@@ -123,9 +128,9 @@ class NewListAdapter(val itemClick: (View,newListItem) -> Unit) : RecyclerView.A
                             newImageLeft.setImag(it[0].imgsrc)
                             newImageMiddle.setImag(it[1].imgsrc)
                             newImageRight.setImag(it[2].imgsrc)
-                            newImageLeft.visibility=View.VISIBLE
-                            newImageMiddle.visibility=View.VISIBLE
-                            newImageRight.visibility=View.VISIBLE
+                            newImageLeft.visibility = View.VISIBLE
+                            newImageMiddle.visibility = View.VISIBLE
+                            newImageRight.visibility = View.VISIBLE
                         }
                     }
                     llImageGroup.layoutParams = layoutParams
@@ -136,5 +141,5 @@ class NewListAdapter(val itemClick: (View,newListItem) -> Unit) : RecyclerView.A
         }
     }
 
-    class FooterViewHolder(view: View, val itemClick: (View,newListItem) -> Unit) : RecyclerView.ViewHolder(view)
+    class FooterViewHolder(view: View, val itemClick: (View, newListItem) -> Unit) : RecyclerView.ViewHolder(view)
 }

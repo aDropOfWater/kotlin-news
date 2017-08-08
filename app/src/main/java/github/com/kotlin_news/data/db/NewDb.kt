@@ -18,8 +18,21 @@ import java.util.*
  * Created by guoshuaijie on 2017/7/25.
  */
 class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
+    override fun requestNewPhotosDetail(id: String): List<photoset>? {
+        var photoList = ArrayList<photoset>()
+        newdbHelper.use {
+            select(newListPhotoSetTable.NAME).postid(id).parseList {
+                val item = photoset(it[newListPhotoSetTable.skipID].toString(),
+                        it[newListPhotoSetTable.title].toString(),
+                        it[newListPhotoSetTable.imgsrc].toString())
+                photoList.add(item)
+            }
+        }
+        return photoList
+    }
+
     override fun requestNewDetail(id: String): newDeatilBean? {
-       val res = newdbHelper.use { select(newDetailTable.NAME).postid(id).parseOpt { newDeatilBean(HashMap(it)) } }
+        val res = newdbHelper.use { select(newDetailTable.NAME).postid(id).parseOpt { newDeatilBean(HashMap(it)) } }
         return res
     }
 

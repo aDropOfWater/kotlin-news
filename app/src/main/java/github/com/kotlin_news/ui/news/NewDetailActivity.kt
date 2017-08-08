@@ -2,11 +2,9 @@ package github.com.kotlin_news.ui.news
 
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import android.view.WindowManager
-import github.com.kotlin_news.App
 import github.com.kotlin_news.R
 import github.com.kotlin_news.domain.commands.RequestCommand
 import github.com.kotlin_news.util.fromHtml

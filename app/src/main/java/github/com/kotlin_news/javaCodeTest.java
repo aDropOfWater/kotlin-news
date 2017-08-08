@@ -1,5 +1,8 @@
 package github.com.kotlin_news;
 
+import android.support.v4.view.PagerAdapter;
+import android.view.View;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -31,6 +34,24 @@ public class javaCodeTest {
         }
         return 0;
     }
+
+    class ad extends PagerAdapter{
+        int i;
+        public ad(int i) {
+            this.i=i;
+        }
+
+        @Override
+        public int getCount() {
+            return 0;
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return false;
+        }
+    }
+
 }
 
 
