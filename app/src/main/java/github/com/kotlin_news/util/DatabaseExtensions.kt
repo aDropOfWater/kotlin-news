@@ -18,4 +18,4 @@ fun SQLiteDatabase.clear(tableName: String) {
     execSQL("delete from $tableName")
 }
 
-fun SelectQueryBuilder.byId(id: Long) = whereSimple("_id = ?", id.toString())
+fun SelectQueryBuilder.postid(id: String) = whereSimple("postid = ?", id)

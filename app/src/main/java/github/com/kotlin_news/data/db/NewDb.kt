@@ -6,22 +6,21 @@ import github.com.kotlin_news.data.newDeatilBean
 import github.com.kotlin_news.data.newListItem
 import github.com.kotlin_news.data.photoset
 import github.com.kotlin_news.domain.datasource.NewDataSource
-import github.com.kotlin_news.util.isNullOrEmpty
-import github.com.kotlin_news.util.log
-import github.com.kotlin_news.util.parseList
+import github.com.kotlin_news.util.*
 import org.jetbrains.anko.db.SqlOrderDirection
 import org.jetbrains.anko.db.insert
 import org.jetbrains.anko.db.select
 import org.jetbrains.anko.toast
 import java.lang.Exception
-import java.util.ArrayList
+import java.util.*
 
 /**
  * Created by guoshuaijie on 2017/7/25.
  */
 class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
     override fun requestNewDetail(id: String): newDeatilBean? {
-        return null
+       val res = newdbHelper.use { select(newDetailTable.NAME).postid(id).parseOpt { newDeatilBean(HashMap(it)) } }
+        return res
     }
 
     override fun requestNewList(type: String, id: String, startPage: Int): List<newListItem>? {
@@ -96,6 +95,20 @@ class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
         return@use result.filter {
             it.insertSuccess
         }
+    }
+
+    /**
+     * 缓存新闻详情
+     */
+    fun saveNewDetail(newDeatilBean: newDeatilBean) = newdbHelper.use {
+        val ins = insert(newDetailTable.NAME,
+                newDetailTable.postid to newDeatilBean.postid,
+                newDetailTable.title to newDeatilBean.title,
+                newDetailTable.sourceName to newDeatilBean.sourceName,
+                newDetailTable.sourceIconUrl to newDeatilBean.sourceIconUrl,
+                newDetailTable.body to newDeatilBean.body,
+                newDetailTable.ptime to newDeatilBean.ptime)
+        if (ins > 0) log("详情数据缓存失败") else log("详情数据缓存成功")
     }
 
 }

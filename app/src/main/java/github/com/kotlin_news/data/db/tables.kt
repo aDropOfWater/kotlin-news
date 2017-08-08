@@ -7,23 +7,37 @@ package github.com.kotlin_news.data.db
  * 新闻列表
  */
 object newListTable{
-//    val NAME = "newList"
     val ID = "_id"
-
     val postid = "postid"
     val title = "title"
     val digest = "digest"
     val imgsrc = "imgsrc"
     val ptime = "ptime"
 }
+
+/**
+ * 新闻列表中的图集
+ */
 object newListPhotoSetTable{
     val NAME = "photoset"
     val ID = "_id"
-
     val postid = "postid"
     val skipID = "skipID"
     val title = "title"
     val imgsrc = "imgsrc"
+}
+/**
+ * 新闻详情
+ */
+object newDetailTable{
+    val NAME = "newDetail"
+    val ID = "_id"
+    val postid = "postid"
+    val sourceName = "sourceName"
+    val sourceIconUrl = "sourceIconUrl"
+    val title = "title"
+    val ptime = "ptime"
+    val body = "body"
 }
 
 object errorTable{

@@ -82,7 +82,7 @@ class NewListAdapter(val itemClick: (View,newListItem) -> Unit) : RecyclerView.A
                 newImage.setImag(newListItem.imgsrc)
                 newTitle.text = newListItem.title
                 newTime.text = newListItem.publishtime
-                itemView.setOnClickListener { itemClick(itemView,newListItem) }
+                itemView.setOnClickListener { itemClick(newImage,newListItem) }
             }
         }
     }

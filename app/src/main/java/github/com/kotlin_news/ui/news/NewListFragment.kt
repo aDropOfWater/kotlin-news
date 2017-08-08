@@ -1,7 +1,6 @@
 package github.com.kotlin_news.ui.news
 
 
-import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Build

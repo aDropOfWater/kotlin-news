@@ -24,28 +24,39 @@ class NewServer(val newDb: NewDb = NewDb()) : NewDataSource {
     }
 
 
-    override fun requestNewDetail(postId: String): newDeatilBean? {
-        val url = "$NETEAST_HOST/nc/article/$postId/full.html"
+    override fun requestNewDetail(id: String): newDeatilBean? {
+        val url = "$NETEAST_HOST/nc/article/$id/full.html"
         val forecastJsonStr = URL(url).readText()
         log(forecastJsonStr)
         val jsonObject = JsonParser().parse(forecastJsonStr).asJsonObject
-        val newPbject = jsonObject.getAsJsonObject(postId)
+        val newPbject = jsonObject.getAsJsonObject(id)
         newPbject?.apply {
             val hashMap = HashMap<String, Any?>()
-            hashMap.put("postid", postId)
+            hashMap.put("postid", id)
             hashMap.put("sourceName", newPbject.getAsJsonObject("sourceinfo")?.get("tname")?.asString?:newPbject["source"].asString)
             hashMap.put("sourceIconUrl", newPbject.getAsJsonObject("sourceinfo")?.get("topic_icons")?.asString?:"")
             hashMap.put("title", newPbject["title"].asString)
             hashMap.put("ptime", newPbject["ptime"].asString)
             var body = newPbject["body"].asString
-            newPbject.getAsJsonArray("img").forEach {
-                if (it is JsonObject) {
-                    val newChars = "<img src=\"${it["src"].asString}\" />"
-                    body = body.replace(it["ref"].asString, newChars)
+            val asJsonArray = newPbject.getAsJsonArray("img")
+            val size = asJsonArray.size()
+            for (i in 0 until size){
+                val get = asJsonArray.get(i)
+                if (get is JsonObject) {
+                    val newChars = "<img src=\"${get["src"].asString}\" />"
+                    body = body.replace(get["ref"].asString, if(i==0) "" else newChars)
                 }
             }
+//            newPbject.getAsJsonArray("img").forEach {
+//                if (it is JsonObject) {
+//                    val newChars = "<img src=\"${it["src"].asString}\" />"
+//                    body = body.replace(it["ref"].asString, newChars)
+//                }
+//            }
             hashMap.put("body", body)
-            return newDeatilBean(hashMap)
+            val newDeatilBean = newDeatilBean(hashMap)
+            newDb.saveNewDetail(newDeatilBean)
+            return newDeatilBean
         }
         return null
     }

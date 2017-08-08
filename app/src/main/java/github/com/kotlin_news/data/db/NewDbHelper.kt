@@ -40,6 +40,15 @@ class NewDbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx,
                 newListPhotoSetTable.imgsrc to TEXT,
                 newListPhotoSetTable.title to TEXT)
 
+        db.createTable(newDetailTable.NAME,true,
+                newDetailTable.ID to INTEGER + PRIMARY_KEY,
+                newDetailTable.postid to TEXT + UNIQUE,
+                newDetailTable.body to TEXT,
+                newDetailTable.ptime to TEXT,
+                newDetailTable.sourceIconUrl to TEXT,
+                newDetailTable.sourceName to TEXT,
+                newDetailTable.title to TEXT)
+
         db.createTable(errorTable.NAME,true,
                 errorTable.ID to INTEGER + PRIMARY_KEY,
                 errorTable.msg to TEXT,
@@ -48,5 +57,6 @@ class NewDbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx,
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+
     }
 }
