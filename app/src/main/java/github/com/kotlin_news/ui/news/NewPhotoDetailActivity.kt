@@ -5,8 +5,6 @@ import android.support.v4.view.PagerAdapter
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import github.com.kotlin_news.App
 import github.com.kotlin_news.R
 import github.com.kotlin_news.data.photoset
 import github.com.kotlin_news.domain.commands.RequestCommand
@@ -47,8 +45,9 @@ class NewPhotoDetailActivity : AppCompatActivity() {
                 piv = viewCache.remove()
                 piv.reset()
             } else {
-                piv = PinchImageView(App.instance)
-                piv.scaleType = ImageView.ScaleType.FIT_END
+                //piv = PinchImageView(App.instance)
+                piv = layoutInflater.inflate(R.layout.item_photo, container, false) as PinchImageView
+                //piv.scaleType = ImageView.ScaleType.FIT_END
             }
             piv.setImag(bean[position].imgsrc)
             container.addView(piv)

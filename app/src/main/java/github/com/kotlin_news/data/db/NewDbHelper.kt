@@ -26,7 +26,7 @@ class NewDbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx,
         tableNames.forEach {
             db.createTable(it, true,
                     newListTable.ID to INTEGER + PRIMARY_KEY,
-                    newListTable.postid to TEXT + UNIQUE,
+                    newListTable.postid to TEXT + UNIQUE + NOT_NULL,
                     newListTable.digest to TEXT,
                     newListTable.imgsrc to TEXT,
                     newListTable.ptime to TEXT,
