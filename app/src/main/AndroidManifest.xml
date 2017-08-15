@@ -21,6 +21,7 @@
         </activity>
         <activity android:name=".ui.news.NewDetailActivity"/>
         <activity android:name=".ui.news.NewPhotoDetailActivity"/>
+        <activity android:name=".ui.news.NewChannelActivity"/>
     </application>
 
 </manifest>

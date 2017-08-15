@@ -17,6 +17,8 @@ class RequestCommand {
 
         fun requestNewPhotosDetail(newId: String) = newsProvider.requestNewPhotosDetail(newId)
 
+        fun requestNewChannelList(isSelect: Boolean = false) = newsProvider.requestNewChannelList(isSelect)
+
     }
 }
 //class RequestCommand(

@@ -6,6 +6,7 @@ import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import github.com.kotlin_news.App
 import github.com.kotlin_news.data.db.NewDb
+import github.com.kotlin_news.data.newChannel
 import github.com.kotlin_news.data.newDeatilBean
 import github.com.kotlin_news.data.newListItem
 import github.com.kotlin_news.data.photoset
@@ -19,8 +20,12 @@ import java.util.NoSuchElementException
  * Created by guoshuaijie on 2017/7/25.
  */
 class NewServer(val newDb: NewDb = NewDb()) : NewDataSource {
+    override fun requestNewChannelList(isSelect: Boolean): List<newChannel> {
+        throw NoSuchElementException("新闻列表需要在本地初始化")
+    }
+
     override fun requestNewPhotosDetail(id: String): List<photoset>? {
-        throw NoSuchElementException("图集详情数据请在本地获取") as Throwable
+        throw NoSuchElementException("图集详情数据请在本地获取")
     }
 
     companion object {

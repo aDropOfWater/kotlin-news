@@ -9,9 +9,13 @@ import android.support.v4.view.ViewPager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import github.com.kotlin_news.App
 import github.com.kotlin_news.R
+import github.com.kotlin_news.data.newChannel
+import github.com.kotlin_news.domain.commands.RequestCommand
+import github.com.kotlin_news.util.log
+import github.com.kotlin_news.util.toast
 import kotlinx.android.synthetic.main.fra_main_new.*
+import kotlin.properties.Delegates
 
 
 /**
@@ -20,8 +24,12 @@ import kotlinx.android.synthetic.main.fra_main_new.*
 class MainNewFragment : Fragment() {
 
     companion object {
-        var listOfTitle: Array<String> = App.instance.resources.getStringArray(R.array.news_channel_name_static)
+        //var listOfChannel: Array<String> = App.instance.resources.getStringArray(R.array.news_channel_name_static)
         lateinit var fragmentList: List<NewListFragment>
+        var listOfChannel: List<newChannel> by Delegates.observable(RequestCommand.requestNewChannelList(true)){
+            _, old, new ->
+
+        }
     }
 
 
@@ -33,9 +41,9 @@ class MainNewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val first = listOfTitle[0]
-        fragmentList = listOfTitle.map { NewListFragment.newInstance(it, it == first) }
+        log(listOfChannel.toString())
+        //val first = listOfChannel[0]
+        fragmentList = listOfChannel.map { NewListFragment.newInstance(it) }
 
         mSectionsPagerAdapter = SectionsPagerAdapter(childFragmentManager)
 
@@ -57,6 +65,8 @@ class MainNewFragment : Fragment() {
             }
         })
         activity.toolbar.title="新闻"
+
+        ivAddChannel.setOnClickListener { toast("跳转频道管理界面") }
     }
 
 
@@ -67,11 +77,11 @@ class MainNewFragment : Fragment() {
         }
 
         override fun getCount(): Int {
-            return listOfTitle.size
+            return listOfChannel.size
         }
 
         override fun getPageTitle(position: Int): CharSequence? {
-            return listOfTitle[position]
+            return listOfChannel[position].channelName
         }
     }
     

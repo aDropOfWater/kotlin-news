@@ -1,8 +1,12 @@
 package github.com.kotlin_news.data
 
+import java.io.Serializable
+
 /**
- * Created by guoshuaijie on 2017/7/21.
+ * 新闻频道model
  */
+data class newChannel(val channelName: String, val channelId: String, val channelSelect: Boolean, val index: Int) : Serializable
+
 /**
  * 新闻列表
  */
@@ -29,8 +33,6 @@ data class newDeatilBean(var map: MutableMap<String, Any?>) {
     val body: String by map
     val ptime: String by map
 }
-//data class newDeatilBean(val postid: String, val sourceName: String, val sourceIconUrl: String, val title: String, val body: String, val ptime: String)
-
 
 
 

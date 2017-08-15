@@ -30,7 +30,8 @@ fun ImageView.setImag(iconUrl: String) {
             .placeholder(R.mipmap.ic_image_loading)
             .fit().into(this)
 }
-fun TextView.fromHtml(body: String){
+
+fun TextView.fromHtml(body: String) {
     RichText.fromHtml(body)
             .scaleType(ImageHolder.ScaleType.FIT_CENTER) // 图片缩放方式
             .size(ImageHolder.MATCH_PARENT, ImageHolder.WRAP_CONTENT) // 图片占位区域的宽高
@@ -40,7 +41,6 @@ fun TextView.fromHtml(body: String){
             .into(this)
 
 }
-
 
 
 fun Fragment.toast(message: CharSequence) = Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
@@ -80,6 +80,10 @@ fun String.switchTimeStrToLong(format: String = "yyyy-MM-dd HH:mm:ss"): Long {
 }
 
 fun <T : Any> List<T>?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
+
+fun Boolean.switch2String(): String = if (this) "1" else "0"
+
+fun String.switch2Boolean(): Boolean = "1" == this
 
 
 

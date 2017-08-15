@@ -2,6 +2,7 @@ package github.com.kotlin_news.data.db
 
 import android.text.TextUtils
 import github.com.kotlin_news.App
+import github.com.kotlin_news.data.newChannel
 import github.com.kotlin_news.data.newDeatilBean
 import github.com.kotlin_news.data.newListItem
 import github.com.kotlin_news.data.photoset
@@ -18,8 +19,24 @@ import java.util.*
  * Created by guoshuaijie on 2017/7/25.
  */
 class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
+    override fun requestNewChannelList(isSelect: Boolean): List<newChannel> {
+        val channelList = ArrayList<newChannel>()
+        newdbHelper.use {
+            select(newChannelsTable.NAME).whereSimple("${newChannelsTable.channelSelect}=?", isSelect.switch2String()).
+                    parseList {
+                       val bean =  newChannel(it[newChannelsTable.channelName].toString(),
+                                it[newChannelsTable.channelId].toString(),
+                                it[newChannelsTable.channelSelect].toString().switch2Boolean(),
+                                it[newChannelsTable.index].toString().toInt())
+                        channelList.add(bean)
+                    }
+
+        }
+       return channelList
+    }
+
     override fun requestNewPhotosDetail(id: String): List<photoset>? {
-        var photoList = ArrayList<photoset>()
+        val photoList = ArrayList<photoset>()
         newdbHelper.use {
             select(newListPhotoSetTable.NAME).postid(id).parseList {
                 val item = photoset(it[newListPhotoSetTable.skipID].toString(),

@@ -1,5 +1,6 @@
 package github.com.kotlin_news.domain.datasource
 
+import github.com.kotlin_news.data.newChannel
 import github.com.kotlin_news.data.newDeatilBean
 import github.com.kotlin_news.data.newListItem
 import github.com.kotlin_news.data.photoset
@@ -13,4 +14,6 @@ interface NewDataSource {
     fun requestNewDetail(id: String): newDeatilBean?
 
     fun requestNewPhotosDetail(id: String): List<photoset>?
+
+    fun requestNewChannelList(isSelect: Boolean = false): List<newChannel>
 }

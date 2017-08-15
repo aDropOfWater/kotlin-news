@@ -1,8 +1,20 @@
 package github.com.kotlin_news.data.db
 
+
 /**
- * Created by guoshuaijie on 2017/7/25.
+ * 新闻频道
  */
+object newChannelsTable{
+    val ID = "_id"
+    val NAME = "newChannelsTable"
+    val channelName = "channelName"
+    val channelId = "channelId"
+    //该频道是否已经选择显示， 1标识显示，0标识不显示
+    val channelSelect = "channelSelect"
+    //是否可以编辑，1标识可以，0标识不可以
+    val editAble = "editAble"
+    val index = "channelIndex"
+}
 /**
  * 新闻列表
  */
@@ -43,7 +55,6 @@ object newDetailTable{
 object errorTable{
     val NAME = "error"
     val ID = "_id"
-
     val msg = "msg"
     //元数据
     val meta = "meta"

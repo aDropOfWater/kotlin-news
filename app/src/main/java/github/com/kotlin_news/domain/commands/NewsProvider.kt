@@ -29,6 +29,26 @@ class NewsProvider(val sources: List<NewDataSource> = NewsProvider.SOURCES) {
         }
     }
 
+    private fun <T : Any> requestToFirstSources(f: (NewDataSource) -> T?): T = sources.firstResult { f(it) }
+
+    private fun <T, R : Any> Iterable<T>.firstResult(predicate: (T) -> R?): R {
+        for (element in this) {
+            val result = predicate(element)
+            if (result != null) return result
+        }
+        throw NoSuchElementException("No element matching predicate was found.")
+    }
+
+    //--------------------------------------------工具分割线---------------------------------------------------------------------
+
+
+    fun requestNewDetail(id: String) = requestToFirstSources { it.requestNewDetail(id) }
+
+    fun requestNewPhotosDetail(id: String) = requestToFirstSources { it.requestNewPhotosDetail(id) }
+
+
+    fun requestNewChannelList(select: Boolean) = requestToFirstSources { it.requestNewChannelList(select) }
+
     fun requestNewList(type: String, channlId: String, startPage: Int) = requestToMergeSources {
         val res = it.requestNewList(type, channlId, startPage)
         res?.apply {
@@ -50,20 +70,6 @@ class NewsProvider(val sources: List<NewDataSource> = NewsProvider.SOURCES) {
             post(NewListProduceEvent(if (it is NewDb) dataSources.DATABASE else dataSources.NETWORK, filterNot, channlId))
         }
     }
-
-    private fun <T : Any> requestToFirstSources(f: (NewDataSource) -> T?): T = sources.firstResult { f(it) }
-
-    private fun <T, R : Any> Iterable<T>.firstResult(predicate: (T) -> R?): R {
-        for (element in this) {
-            val result = predicate(element)
-            if (result != null) return result
-        }
-        throw NoSuchElementException("No element matching predicate was found.")
-    }
-
-    fun requestNewDetail(id: String) = requestToFirstSources { it.requestNewDetail(id) }
-
-    fun requestNewPhotosDetail(id: String) = requestToFirstSources { it.requestNewPhotosDetail(id) }
 
 
 }

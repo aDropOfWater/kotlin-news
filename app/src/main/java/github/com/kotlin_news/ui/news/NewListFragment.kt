@@ -18,6 +18,7 @@ import android.view.ViewGroup
 import github.com.kotlin_news.App
 import github.com.kotlin_news.NewListProduceEvent
 import github.com.kotlin_news.R
+import github.com.kotlin_news.data.newChannel
 import github.com.kotlin_news.dataSources
 import github.com.kotlin_news.domain.commands.RequestCommand
 import github.com.kotlin_news.ui.news.adapter.NewListAdapter
@@ -32,7 +33,7 @@ import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
 
-class  NewListFragment : Fragment() {
+class NewListFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -41,15 +42,15 @@ class  NewListFragment : Fragment() {
     }
 
     val newListAdapter = NewListAdapter { v, (postid, _, digest, imgsrc) ->
-        if(digest.isNullOrEmpty()){
-            val intent = Intent(activity,NewPhotoDetailActivity::class.java)
-            intent.putExtra("id" , postid)
+        if (digest.isNullOrEmpty()) {
+            val intent = Intent(activity, NewPhotoDetailActivity::class.java)
+            intent.putExtra("id", postid)
             startActivity(intent)
             return@NewListAdapter
         }
-        val intent = Intent(activity,NewDetailActivity::class.java)
-        intent.putExtra("id" , postid)
-        intent.putExtra("url" , imgsrc)
+        val intent = Intent(activity, NewDetailActivity::class.java)
+        intent.putExtra("id", postid)
+        intent.putExtra("url", imgsrc)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val options = ActivityOptions.makeSceneTransitionAnimation(activity, v, App.TRANSITION_ANIMATION_NEWS_PHOTOS)
             startActivity(intent, options.toBundle())
@@ -59,15 +60,15 @@ class  NewListFragment : Fragment() {
         }
 
 
-
     }
     lateinit var linearLayoutManager: LinearLayoutManager
     var lastVisibleItem = -1
     var startPage = 0
     var type = "list"
-    var id = ""
+    lateinit var channel: newChannel
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        channel = arguments.getSerializable(CHANNEL) as newChannel
         refreshLayout.setProgressBackgroundColorSchemeResource(android.R.color.white)
         refreshLayout.setColorSchemeResources(android.R.color.holo_blue_light,
                 android.R.color.holo_red_light, android.R.color.holo_orange_light,
@@ -84,7 +85,8 @@ class  NewListFragment : Fragment() {
         }
         newRecyView.itemAnimator = DefaultItemAnimator()
         //第一个展示的fragment   默认加载数据
-        if (arguments.getBoolean(IS_FIRST_ITEM, false)) firstRefresh()
+        if("头条".equals(channel.channelName)){type = "headline"}
+        if (channel.index == 0) firstRefresh()
         newRecyView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
@@ -102,7 +104,7 @@ class  NewListFragment : Fragment() {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onMessageEvent(event: NewListProduceEvent) {
-        if (event.channlId != id) return
+        if (event.channlId != channel.channelId) return
         when (event.source) {
             dataSources.DATABASE -> {
                 log("从本地获取到:${event.list.size}条数据,当前时间：${System.currentTimeMillis()}")
@@ -122,40 +124,14 @@ class  NewListFragment : Fragment() {
     }
 
     fun getData() {
-        log("开始获取：${arguments.getString(CHANNEL_NAME)}  的数据,startPage=$startPage-----refreshLayout.isRefreshing=${refreshLayout.isRefreshing}")
+        log("开始获取：${channel.channelName}  的数据,startPage=$startPage-----refreshLayout.isRefreshing=${refreshLayout.isRefreshing}")
         doAsync {
-            if (convertFromNameToTypeAndId(arguments.getString(CHANNEL_NAME))) {
-                RequestCommand.requestNewList(type, id, if (refreshLayout.isRefreshing) 0 else startPage)
-            } else {
-                activity.toast("参数初始化错误")
-            }
+            RequestCommand.requestNewList(type, channel.channelId, if (refreshLayout.isRefreshing) 0 else startPage)
             uiThread {
                 refreshLayout.isRefreshing = false
                 startPage += App.newItemLoadNumber
             }
         }
-    }
-
-    private fun convertFromNameToTypeAndId(channl: String): Boolean {
-        when (channl) {
-            "头条" -> {
-                type = "headline";id = "T1348647909107"
-            }
-            "科技" -> {
-                id = "T1348649580692"
-            }
-            "财经" -> {
-                id = "T1348648756099"
-            }
-            "军事" -> {
-                id = "T1348648141035"
-            }
-            "体育" -> {
-                id = "T1348649079062"
-            }
-            else -> return false
-        }
-        return true
     }
 
     override fun onStart() {
@@ -169,13 +145,11 @@ class  NewListFragment : Fragment() {
     }
 
     companion object {
-        private val CHANNEL_NAME = "channel_name"
-        private val IS_FIRST_ITEM = "IS_FIRST_ITEM"
-        fun newInstance(channel: String, first: Boolean = false): NewListFragment {
+        private val CHANNEL = "NewListFragment:channel"
+        fun newInstance(channel: newChannel): NewListFragment {
             val fragment = NewListFragment()
             val args = Bundle()
-            args.putString(CHANNEL_NAME, channel)
-            args.putBoolean(IS_FIRST_ITEM, first)
+            args.putSerializable(CHANNEL, channel)
             fragment.arguments = args
             return fragment
         }
