@@ -24,15 +24,16 @@ class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
         newdbHelper.use {
             select(newChannelsTable.NAME).whereSimple("${newChannelsTable.channelSelect}=?", isSelect.switch2String()).
                     parseList {
-                       val bean =  newChannel(it[newChannelsTable.channelName].toString(),
+                        val bean = newChannel(it[newChannelsTable.channelName].toString(),
                                 it[newChannelsTable.channelId].toString(),
                                 it[newChannelsTable.channelSelect].toString().switch2Boolean(),
+                                it[newChannelsTable.editAble].toString().switch2Boolean(),
                                 it[newChannelsTable.index].toString().toInt())
                         channelList.add(bean)
                     }
 
         }
-       return channelList
+        return channelList
     }
 
     override fun requestNewPhotosDetail(id: String): List<photoset>? {

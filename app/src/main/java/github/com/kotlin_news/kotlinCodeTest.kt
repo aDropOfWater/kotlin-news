@@ -19,5 +19,7 @@ class kotlinCodeTest {
     fun main() {
         val b = BaseImpl(10)
         Derived(b).print() // prints 10
+
+        val t = IntArray(2)
     }
 }

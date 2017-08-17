@@ -1,5 +1,6 @@
 package github.com.kotlin_news.ui.news
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
@@ -13,7 +14,6 @@ import github.com.kotlin_news.R
 import github.com.kotlin_news.data.newChannel
 import github.com.kotlin_news.domain.commands.RequestCommand
 import github.com.kotlin_news.util.log
-import github.com.kotlin_news.util.toast
 import kotlinx.android.synthetic.main.fra_main_new.*
 import kotlin.properties.Delegates
 
@@ -26,7 +26,7 @@ class MainNewFragment : Fragment() {
     companion object {
         //var listOfChannel: Array<String> = App.instance.resources.getStringArray(R.array.news_channel_name_static)
         lateinit var fragmentList: List<NewListFragment>
-        var listOfChannel: List<newChannel> by Delegates.observable(RequestCommand.requestNewChannelList(true)){
+        var listOfChannel: List<newChannel> by Delegates.observable(RequestCommand.requestNewChannelList(true)) {
             _, old, new ->
 
         }
@@ -64,9 +64,9 @@ class MainNewFragment : Fragment() {
                 fragmentList[position].firstRefresh()
             }
         })
-        activity.toolbar.title="新闻"
+        activity.toolbar.title = "新闻"
 
-        ivAddChannel.setOnClickListener { toast("跳转频道管理界面") }
+        ivAddChannel.setOnClickListener { startActivity(Intent(activity, NewChannelActivity::class.java)) }
     }
 
 
@@ -84,5 +84,5 @@ class MainNewFragment : Fragment() {
             return listOfChannel[position].channelName
         }
     }
-    
+
 }

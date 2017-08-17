@@ -5,7 +5,7 @@ import java.io.Serializable
 /**
  * 新闻频道model
  */
-data class newChannel(val channelName: String, val channelId: String, val channelSelect: Boolean, val index: Int) : Serializable
+data class newChannel(val channelName: String, val channelId: String, val channelSelect: Boolean,val editAble: Boolean, val index: Int) : Serializable
 
 /**
  * 新闻列表

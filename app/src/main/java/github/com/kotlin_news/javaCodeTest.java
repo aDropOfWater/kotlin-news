@@ -19,10 +19,14 @@ public class javaCodeTest {
 
 //        System.out.println("kotlin："+ExtensionUtilsKt.switchTimeStrToLong("2017-07-24 16:01:26","yyyy-MM-dd HH:mm:ss"));
 
-        System.out.println(JavaUtil.switchTimeStrToLong("2017-07-25 09:41:15"));
+//        System.out.println(JavaUtil.switchTimeStrToLong("2017-07-25 09:41:15"));
 
 
-        System.out.println(System.currentTimeMillis());
+//        System.out.println(System.currentTimeMillis());
+
+        int[] t = new int[2];
+
+
     }
 
     public static long switchTimeStrToLong(String time) {
