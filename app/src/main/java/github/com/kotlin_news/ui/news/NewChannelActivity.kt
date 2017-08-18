@@ -1,34 +1,30 @@
 package github.com.kotlin_news.ui.news
 
 import android.animation.ValueAnimator
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
-import android.support.annotation.RequiresApi
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.PopupWindow
 import github.com.kotlin_news.R
 import github.com.kotlin_news.data.newChannel
 import github.com.kotlin_news.domain.commands.RequestCommand
+import github.com.kotlin_news.ui.anim.ChannelItemAnim
 import github.com.kotlin_news.ui.news.adapter.NewChannelAdapter
+import github.com.kotlin_news.util.log
 import kotlinx.android.synthetic.main.activity_new_channel.*
 import org.jetbrains.anko.contentView
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.view.animation.Animation
-import android.widget.ImageView
-import java.util.ArrayList
-import android.view.animation.TranslateAnimation
-import github.com.kotlin_news.util.log
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import java.util.*
 
 
 /**
@@ -38,39 +34,56 @@ import org.jetbrains.anko.uiThread
 class NewChannelActivity : AppCompatActivity() {
 
     val itemCilck = { p: Int, v: View, c: newChannel ->
-        //1.将点击到的view复制出来一个POP
         val location = IntArray(2)
-        v.getLocationInWindow(location)
-        val window = PopupWindow()
         val pp = ImageView(NewChannelActivity@ this)
+        //1.将点击到的view复制出来一个POP
+        v.getLocationInWindow(location)
         pp.setImageBitmap(view2bitmap(v))
         window.contentView = pp
-        window.width = ViewGroup.LayoutParams.WRAP_CONTENT
-        window.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        window.setBackgroundDrawable(ColorDrawable())
         window.showAtLocation(contentView, Gravity.NO_GRAVITY, location[0], location[1])
         //2.隐藏点击到的view
-        val old = notShowAdapter.remove(p)
         //3.获取pop将要飞过去的位置
-        showAdapter.add(old)
+        if (c.channelSelect) {
+            val old = showAdapter.remove(p)
+            notShowAdapter.add(old, 0)
+        } else {
+            val old = notShowAdapter.remove(p)
+            showAdapter.add(old, -1)
+        }
         doAsync {
-            Thread.sleep(200)
+            Thread.sleep(100)
             uiThread {
-                val addView = showLayoutManager.findViewByPosition(showLayoutManager.childCount - 1)
+                val addView: View?
+                if (c.channelSelect) {
+                     addView = notShowLayoutManager.findViewByPosition(0)
+                } else {
+                    val childSize = showLayoutManager.childCount
+                     addView = showLayoutManager.findViewByPosition(childSize - 1)
+                }
+                if (addView == null) {
+                    window.dismiss()
+                    return@uiThread
+                }
                 val toLocation = IntArray(2)
                 addView.getLocationInWindow(toLocation)
                 //pop开始平移过去指定位置
                 val animation = ValueAnimator.ofFloat(0f, 1f)
-                animation.duration = 1500
-                //animation.fillAfter = true//设置为true，动画转化结束后被应用
+                animation.duration = 200
                 val xTranslate = toLocation[0] - location[0]
                 val yTranslate = toLocation[1] - location[1]
-                animation.addUpdateListener { animation ->
-                    val animatedValue = animation.animatedValue as Float
+                animation.addUpdateListener {
+                    val animatedValue = it.animatedValue as Float
                     val xx = location[0] + xTranslate * animatedValue
                     val yy = location[1] + yTranslate * animatedValue
                     log("起始位置x=${location[0]},y=${location[1]},终点位置x=${toLocation[0]},y=${toLocation[1]},平移x=${xx.toInt()},y=${yy.toInt()}")
                     window.update(xx.toInt(), yy.toInt(), -1, -1)
+                    when (animatedValue) {
+                        1f -> {
+                            //4.改变newChannel的数据状态
+                            window.dismiss()
+                            c.channelSelect = !c.channelSelect
+                        }
+                    }
                 }
                 animation.start()
             }
@@ -91,6 +104,14 @@ class NewChannelActivity : AppCompatActivity() {
     lateinit var notShowAdapter: NewChannelAdapter
     lateinit var notShowLayoutManager: GridLayoutManager
 
+    val window: PopupWindow by lazy {
+        val window = PopupWindow()
+        window.width = ViewGroup.LayoutParams.WRAP_CONTENT
+        window.height = ViewGroup.LayoutParams.WRAP_CONTENT
+        window.setBackgroundDrawable(ColorDrawable())
+        window
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_channel)
@@ -106,7 +127,11 @@ class NewChannelActivity : AppCompatActivity() {
         rlMyChannel.adapter = showAdapter
         showLayoutManager = GridLayoutManager(this, 4, LinearLayoutManager.VERTICAL, false)
         rlMyChannel.layoutManager = showLayoutManager
-        rlMyChannel.itemAnimator = DefaultItemAnimator()
+        val anmi = ChannelItemAnim()
+        anmi.addDuration = 200
+        rlMyChannel.itemAnimator = anmi
+
+
 
 
         rlMoreChannel.adapter = notShowAdapter

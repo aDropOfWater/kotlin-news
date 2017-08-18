@@ -8,12 +8,15 @@ import android.view.ViewGroup
 import github.com.kotlin_news.R
 import github.com.kotlin_news.data.newChannel
 import github.com.kotlin_news.util.ctx
+import github.com.kotlin_news.util.log
 import kotlinx.android.synthetic.main.item_news_channel.view.*
 
 /**
  * Created by guoshuaijie on 2017/8/17.
  */
-class NewChannelAdapter(val newList: ArrayList<newChannel>, val itemClick: (Int, View, newChannel) -> Unit) : RecyclerView.Adapter<NewChannelAdapter.channelViewHolder>() {
+class NewChannelAdapter(val newList: ArrayList<newChannel>,
+                        val itemClick: (Int, View, newChannel) -> Unit
+) : RecyclerView.Adapter<NewChannelAdapter.channelViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): channelViewHolder {
         val view = LayoutInflater.from(parent.ctx).inflate(R.layout.item_news_channel, parent, false)
         return channelViewHolder(view, itemClick)
@@ -22,13 +25,20 @@ class NewChannelAdapter(val newList: ArrayList<newChannel>, val itemClick: (Int,
     fun remove(position: Int): newChannel {
         val old = newList.removeAt(position)
         notifyItemRemoved(position)
+        //log("position=$position,itemCount=$itemCount")
+        notifyItemRangeChanged(position, itemCount-1)
         return old
     }
 
-    fun add(channel: newChannel) {
-        newList.add(channel)
-        notifyItemInserted(itemCount)
-//        notifyDataSetChanged()
+    fun add(channel: newChannel, index: Int) {
+        if (index < 0) {
+            newList.add(channel)
+            notifyItemInserted(itemCount)
+        } else {
+            newList.add(index, channel)
+            notifyItemInserted(index)
+        }
+
     }
 
     override fun onBindViewHolder(holder: channelViewHolder, position: Int) {
