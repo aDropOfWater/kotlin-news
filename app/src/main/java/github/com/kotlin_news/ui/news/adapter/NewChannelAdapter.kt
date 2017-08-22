@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import github.com.kotlin_news.R
 import github.com.kotlin_news.data.newChannel
 import github.com.kotlin_news.util.ctx
-import github.com.kotlin_news.util.log
 import kotlinx.android.synthetic.main.item_news_channel.view.*
 
 /**
@@ -25,8 +24,7 @@ class NewChannelAdapter(val newList: ArrayList<newChannel>,
     fun remove(position: Int): newChannel {
         val old = newList.removeAt(position)
         notifyItemRemoved(position)
-        //log("position=$position,itemCount=$itemCount")
-        notifyItemRangeChanged(position, itemCount-1)
+        notifyItemRangeChanged(0, itemCount)
         return old
     }
 
@@ -38,7 +36,7 @@ class NewChannelAdapter(val newList: ArrayList<newChannel>,
             newList.add(index, channel)
             notifyItemInserted(index)
         }
-
+        notifyItemRangeChanged(0, itemCount)
     }
 
     override fun onBindViewHolder(holder: channelViewHolder, position: Int) {

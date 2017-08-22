@@ -5,10 +5,13 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -34,6 +37,7 @@ import java.util.*
 class NewChannelActivity : AppCompatActivity() {
 
     val itemCilck = { p: Int, v: View, c: newChannel ->
+        log("position=$p,name=${c.channelName}")
         val location = IntArray(2)
         val pp = ImageView(NewChannelActivity@ this)
         //1.将点击到的view复制出来一个POP
@@ -43,22 +47,25 @@ class NewChannelActivity : AppCompatActivity() {
         window.showAtLocation(contentView, Gravity.NO_GRAVITY, location[0], location[1])
         //2.隐藏点击到的view
         //3.获取pop将要飞过去的位置
+        var index = 0
         if (c.channelSelect) {
             val old = showAdapter.remove(p)
             notShowAdapter.add(old, 0)
+            index= 0
         } else {
             val old = notShowAdapter.remove(p)
             showAdapter.add(old, -1)
+            index = showAdapter.itemCount-1
         }
         doAsync {
             Thread.sleep(100)
             uiThread {
                 val addView: View?
                 if (c.channelSelect) {
-                     addView = notShowLayoutManager.findViewByPosition(0)
+                    addView = notShowLayoutManager.findViewByPosition(0)
                 } else {
                     val childSize = showLayoutManager.childCount
-                     addView = showLayoutManager.findViewByPosition(childSize - 1)
+                    addView = showLayoutManager.findViewByPosition(childSize - 1)
                 }
                 if (addView == null) {
                     window.dismiss()
@@ -68,7 +75,7 @@ class NewChannelActivity : AppCompatActivity() {
                 addView.getLocationInWindow(toLocation)
                 //pop开始平移过去指定位置
                 val animation = ValueAnimator.ofFloat(0f, 1f)
-                animation.duration = 200
+                animation.duration = 400
                 val xTranslate = toLocation[0] - location[0]
                 val yTranslate = toLocation[1] - location[1]
                 animation.addUpdateListener {
@@ -80,6 +87,16 @@ class NewChannelActivity : AppCompatActivity() {
                     when (animatedValue) {
                         1f -> {
                             //4.改变newChannel的数据状态
+                            //找到from  top 2  bottom的view
+//                            var view = (if (c.channelSelect) notShowLayoutManager else showLayoutManager).findViewByPosition(index)
+                            var view:View
+                            if (c.channelSelect) {
+                                 view = notShowLayoutManager.findViewByPosition(index)
+                            } else {
+                                 view = showLayoutManager.findViewByPosition(index)
+                            }
+                            log("view.hashCode()=${view.hashCode()}")
+                            ViewCompat.setAlpha(view, 1f)
                             window.dismiss()
                             c.channelSelect = !c.channelSelect
                         }
@@ -120,7 +137,6 @@ class NewChannelActivity : AppCompatActivity() {
         //没有展示在新闻页
         val notShowOnTab = RequestCommand.requestNewChannelList(false)
 
-
         showAdapter = NewChannelAdapter(ArrayList(showOnTab), itemCilck)
         notShowAdapter = NewChannelAdapter(ArrayList(notShowOnTab), itemCilck)
 
@@ -128,16 +144,42 @@ class NewChannelActivity : AppCompatActivity() {
         showLayoutManager = GridLayoutManager(this, 4, LinearLayoutManager.VERTICAL, false)
         rlMyChannel.layoutManager = showLayoutManager
         val anmi = ChannelItemAnim()
-        anmi.addDuration = 200
         rlMyChannel.itemAnimator = anmi
+        val helper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN or ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT, 0) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder?, direction: Int) {
+            }
 
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                val fromPosition = viewHolder.adapterPosition//得到拖动ViewHolder的position
+                val toPosition = target.adapterPosition//得到目标ViewHolder的position
+//                if (fromPosition < toPosition) {
+//                    //分别把中间所有的item的位置重新交换
+//                    for (i in fromPosition..toPosition - 1) {
+//                        Collections.swap(showAdapter.newList, i, i + 1)
+//                    }
+//                } else {
+//                    for (i in fromPosition downTo toPosition + 1) {
+//                        Collections.swap(showAdapter.newList, i, i - 1)
+//                    }
+//                }
+                Collections.swap(showAdapter.newList, fromPosition, toPosition)
+                showAdapter.notifyItemMoved(fromPosition, toPosition)
+                showAdapter.notifyItemRangeChanged(0, showAdapter.itemCount)
+                return true
+            }
 
+            override fun onChildDraw(c: Canvas?, recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+            }
+        })
+        helper.attachToRecyclerView(rlMyChannel)
 
 
         rlMoreChannel.adapter = notShowAdapter
         notShowLayoutManager = GridLayoutManager(this, 4, LinearLayoutManager.VERTICAL, false)
         rlMoreChannel.layoutManager = notShowLayoutManager
-        rlMoreChannel.itemAnimator = DefaultItemAnimator()
+        val anma = ChannelItemAnim()
+        rlMoreChannel.itemAnimator = anma
 
 
     }

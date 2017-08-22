@@ -1,6 +1,8 @@
 package github.com.kotlin_news;
 
 import android.support.v4.view.PagerAdapter;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
 import java.text.ParseException;
@@ -25,6 +27,8 @@ public class javaCodeTest {
 //        System.out.println(System.currentTimeMillis());
 
         int[] t = new int[2];
+
+       int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
 
 
     }
@@ -53,6 +57,23 @@ public class javaCodeTest {
         @Override
         public boolean isViewFromObject(View view, Object object) {
             return false;
+        }
+    }
+
+
+    public class textHelper extends ItemTouchHelper.SimpleCallback{
+        public textHelper(int dragDirs, int swipeDirs) {
+            super(dragDirs, swipeDirs);
+        }
+
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+
         }
     }
 

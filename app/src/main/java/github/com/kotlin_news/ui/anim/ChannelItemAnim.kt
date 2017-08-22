@@ -1,12 +1,12 @@
 package github.com.kotlin_news.ui.anim
 
-import android.animation.ValueAnimator
 import android.support.v4.animation.AnimatorCompatHelper
 import android.support.v4.view.ViewCompat
 import android.support.v4.view.ViewPropertyAnimatorListener
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SimpleItemAnimator
 import android.view.View
+import github.com.kotlin_news.util.log
 
 /**
  * Created by guoshuaijie on 2017/8/18.
@@ -149,11 +149,11 @@ class ChannelItemAnim : SimpleItemAnimator() {
         mRemoveAnimations.add(holder)
         animation.setDuration(removeDuration)
                 .alpha(0f).setListener(object : VpaListenerAdapter() {
-            override fun onAnimationStart(view: View) {
+            override fun onAnimationStart(v: View) {
                 dispatchRemoveStarting(holder)
             }
 
-            override fun onAnimationEnd(view: View) {
+            override fun onAnimationEnd(v: View) {
                 animation.setListener(null)
                 ViewCompat.setAlpha(view, 1f)
                 dispatchRemoveFinished(holder)
@@ -172,22 +172,30 @@ class ChannelItemAnim : SimpleItemAnimator() {
 
     internal fun animateAddImpl(holder: RecyclerView.ViewHolder) {
         val view = holder.itemView
-        mAddAnimations.add(holder)
-        val animation = ValueAnimator.ofFloat(0f, 1f)
-        animation.duration = addDuration
-        animation.addUpdateListener {
-            val animatedValue = it.animatedValue as Float
-            when (animatedValue) {
-                0f -> dispatchAddStarting(holder)
-                1f -> {
-                    ViewCompat.setAlpha(view, 1f)
-                    dispatchAddFinished(holder)
-                    mAddAnimations.remove(holder)
-                    dispatchFinishedWhenDone()
-                }
-            }
-        }
-        animation.start()
+        log("view.hashCode()=${view.hashCode()}")
+        ViewCompat.setAlpha(view, 0f)
+        dispatchRemoveFinished(holder)
+        mRemoveAnimations.remove(holder)
+        dispatchFinishedWhenDone()
+
+
+//        mAddAnimations.add(holder)
+//        val animation = ValueAnimator.ofFloat(0f, 1f)
+//        animation.duration = addDuration
+//        animation.addUpdateListener {
+//            val animatedValue = it.animatedValue as Float
+//            when (animatedValue) {
+//                0f -> dispatchAddStarting(holder)
+//                1f -> {
+//                    ViewCompat.setAlpha(view, 1f)
+//                    dispatchAddFinished(holder)
+//                    mAddAnimations.remove(holder)
+//                    dispatchFinishedWhenDone()
+//                }
+//            }
+//        }
+//        animation.start()
+
         // val animation = ViewCompat.animate(view)
 //        animation.alpha(1f).setDuration(addDuration).setListener(object : VpaListenerAdapter() {
 //            override fun onAnimationStart(view: View) {
