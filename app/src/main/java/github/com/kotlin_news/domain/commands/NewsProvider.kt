@@ -2,6 +2,7 @@ package github.com.kotlin_news.domain.commands
 
 import github.com.kotlin_news.NewListProduceEvent
 import github.com.kotlin_news.data.db.NewDb
+import github.com.kotlin_news.data.newChannel
 import github.com.kotlin_news.data.server.NewServer
 import github.com.kotlin_news.dataSources
 import github.com.kotlin_news.domain.datasource.NewDataSource
@@ -42,12 +43,17 @@ class NewsProvider(val sources: List<NewDataSource> = NewsProvider.SOURCES) {
     //--------------------------------------------工具分割线---------------------------------------------------------------------
 
 
+
+
     fun requestNewDetail(id: String) = requestToFirstSources { it.requestNewDetail(id) }
 
     fun requestNewPhotosDetail(id: String) = requestToFirstSources { it.requestNewPhotosDetail(id) }
 
 
     fun requestNewChannelList(select: Boolean) = requestToFirstSources { it.requestNewChannelList(select) }
+
+    fun saveChannelList(channels: List<newChannel>) = requestToFirstSources{ it.saveChannelList(channels)}
+
 
     fun requestNewList(type: String, channlId: String, startPage: Int) = requestToMergeSources {
         val res = it.requestNewList(type, channlId, startPage)

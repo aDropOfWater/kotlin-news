@@ -17,7 +17,6 @@ class NewDbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx,
         val DB_NAME = "KotlinNews.db"
         val DB_VERSION = 2
         val instance by lazy { NewDbHelper() }
-        //val tableNames = listOf("T1348647909107", "T1348649580692", "T1348648756099", "T1348648141035", "T1348649079062")
     }
 
 
@@ -54,7 +53,7 @@ class NewDbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx,
                         newChannelsTable.editAble to "1",
                         newChannelsTable.channelSelect to "0",
                         newChannelsTable.channelId to EditChannelIds[position],
-                        newChannelsTable.index to notEditChannelNames.size + position)
+                        newChannelsTable.index to position)
             }
         }
         val tableNames = notEditChannelIds + EditChannelIds

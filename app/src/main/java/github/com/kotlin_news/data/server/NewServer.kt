@@ -19,9 +19,13 @@ import java.util.NoSuchElementException
 /**
  * Created by guoshuaijie on 2017/7/25.
  */
-class NewServer(val newDb: NewDb = NewDb()) : NewDataSource {
+class NewServer(private val newDb: NewDb = NewDb()) : NewDataSource {
+    override fun saveChannelList(channels: List<newChannel>): Boolean {
+        throw NoSuchElementException("新闻频道本地数据更新")
+    }
+
     override fun requestNewChannelList(isSelect: Boolean): List<newChannel> {
-        throw NoSuchElementException("新闻列表需要在本地初始化")
+        throw NoSuchElementException("新闻频道列表需要在本地初始化")
     }
 
     override fun requestNewPhotosDetail(id: String): List<photoset>? {
@@ -72,16 +76,16 @@ class NewServer(val newDb: NewDb = NewDb()) : NewDataSource {
         return null
     }
 
-    override fun requestNewList(type: String, channlId: String, startPage: Int): List<newListItem>? {
+    override fun requestNewList(type: String, id: String, startPage: Int): List<newListItem>? {
         val start = System.currentTimeMillis()
-        val url = "$NETEAST_HOST/nc/article/$type/$channlId/$startPage-${App.newItemLoadNumber}.html"
+        val url = "$NETEAST_HOST/nc/article/$type/$id/$startPage-${App.newItemLoadNumber}.html"
         val forecastJsonStr = URL(url).readText()
         log("从网络获取到的数据...")
         val type = object : TypeToken<List<newListItem>>() {}.type
-        val result = gson.fromJson<List<newListItem>>(forecastJsonStr.obtainNewsStr(channlId), type)
+        val result = gson.fromJson<List<newListItem>>(forecastJsonStr.obtainNewsStr(id), type)
         log("从网络获取到${result.size}条数据")
         log("网络查询耗时：${System.currentTimeMillis() - start}")
-        val newList = newDb.saveNewList(result, channlId)
+        val newList = newDb.saveNewList(result, id)
         log("数据固化耗时：${System.currentTimeMillis() - start}")
         log("数据库存储时候过滤掉${result.size - newList.size}条本地存在的数据，还剩下${newList.size}条数据")
         return newList

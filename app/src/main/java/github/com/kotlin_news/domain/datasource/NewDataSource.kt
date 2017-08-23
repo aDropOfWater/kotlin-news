@@ -16,4 +16,6 @@ interface NewDataSource {
     fun requestNewPhotosDetail(id: String): List<photoset>?
 
     fun requestNewChannelList(isSelect: Boolean = false): List<newChannel>
+
+    fun saveChannelList(channels: List<newChannel>): Boolean
 }

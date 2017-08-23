@@ -1,5 +1,7 @@
 package github.com.kotlin_news.domain.commands
 
+import github.com.kotlin_news.data.newChannel
+
 /**
  * Created by guoshuaijie on 2017/7/25.
  * type: String, channlId: String, startPage: Int
@@ -19,6 +21,7 @@ class RequestCommand {
 
         fun requestNewChannelList(isSelect: Boolean = false) = newsProvider.requestNewChannelList(isSelect)
 
+        fun saveChannelList(channels: List<newChannel>) = newsProvider.saveChannelList(channels)
     }
 }
 //class RequestCommand(

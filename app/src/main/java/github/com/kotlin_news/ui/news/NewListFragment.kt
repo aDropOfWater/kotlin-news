@@ -30,16 +30,13 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
 
 class NewListFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        val rootView = inflater!!.inflate(R.layout.fragment_new_list, container, false)
-        return rootView
-    }
+                              savedInstanceState: Bundle?): View? =
+            inflater!!.inflate(R.layout.fragment_new_list, container, false)
 
     val newListAdapter = NewListAdapter { v, (postid, _, digest, imgsrc) ->
         if (digest.isNullOrEmpty()) {
@@ -85,7 +82,7 @@ class NewListFragment : Fragment() {
         }
         newRecyView.itemAnimator = DefaultItemAnimator()
         //第一个展示的fragment   默认加载数据
-        if("头条".equals(channel.channelName)){type = "headline"}
+        type = if ("头条" == channel.channelName) "headline" else if ("房产" == channel.channelName) "house" else "list"
         if (channel.index == 0) firstRefresh()
         newRecyView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {

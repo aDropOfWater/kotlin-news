@@ -11,6 +11,7 @@ import github.com.kotlin_news.util.*
 import org.jetbrains.anko.db.SqlOrderDirection
 import org.jetbrains.anko.db.insert
 import org.jetbrains.anko.db.select
+import org.jetbrains.anko.db.update
 import org.jetbrains.anko.toast
 import java.lang.Exception
 import java.util.*
@@ -18,11 +19,32 @@ import java.util.*
 /**
  * Created by guoshuaijie on 2017/7/25.
  */
-class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
+class NewDb(private val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
+    override fun saveChannelList(channels: List<newChannel>): Boolean {
+        newdbHelper.use {
+            try {
+                channels.forEachIndexed { p, (channelName, channelId, channelSelect) ->
+                   val up = update(newChannelsTable.NAME,
+                            newChannelsTable.channelSelect to channelSelect.switch2String(),
+                            newChannelsTable.index to p.toString())
+                            .whereSimple("${newChannelsTable.channelId}=?", channelId)
+                            .exec()
+                    //log("update result=$up")
+                    log("channelName=$channelName,index=$p")
+                }
+                return@use true
+            } catch (e: Exception) {
+                log(e.toString())
+            }
+        }
+        return false
+    }
+
     override fun requestNewChannelList(isSelect: Boolean): List<newChannel> {
         val channelList = ArrayList<newChannel>()
         newdbHelper.use {
             select(newChannelsTable.NAME).whereSimple("${newChannelsTable.channelSelect}=?", isSelect.switch2String()).
+                    orderBy(newChannelsTable.index, SqlOrderDirection.ASC).
                     parseList {
                         val bean = newChannel(it[newChannelsTable.channelName].toString(),
                                 it[newChannelsTable.channelId].toString(),
@@ -31,9 +53,8 @@ class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
                                 it[newChannelsTable.index].toString().toInt())
                         channelList.add(bean)
                     }
-
         }
-        return channelList
+        return channelList.filter { it.channelName!="房产" }
     }
 
     override fun requestNewPhotosDetail(id: String): List<photoset>? {
@@ -49,44 +70,46 @@ class NewDb(val newdbHelper: NewDbHelper = NewDbHelper()) : NewDataSource {
         return photoList
     }
 
-    override fun requestNewDetail(id: String): newDeatilBean? {
-        val res = newdbHelper.use { select(newDetailTable.NAME).postid(id).parseOpt { newDeatilBean(HashMap(it)) } }
-        return res
-    }
+    override fun requestNewDetail(id: String): newDeatilBean? =
+            newdbHelper.use { select(newDetailTable.NAME).postid(id).parseOpt { newDeatilBean(HashMap(it)) } }
 
     override fun requestNewList(type: String, id: String, startPage: Int): List<newListItem>? {
         log("开始从本地数据库获取数据..")
         val start = System.currentTimeMillis()
-        var newList = ArrayList<newListItem>()
-        newdbHelper.use {
-            select(id).orderBy("_id", SqlOrderDirection.DESC).limit(startPage, App.newItemLoadNumber)
-                    .parseList {
-                        val item = newListItem(it[newListTable.postid].toString(),
-                                it[newListTable.title].toString(),
-                                it[newListTable.digest].toString(),
-                                it[newListTable.imgsrc].toString(),
-                                it[newListTable.ptime].toString(), null)
-                        newList.add(item)
+        val newList = ArrayList<newListItem>()
+        try {
+            return  newdbHelper.use {
+                select(id).orderBy("_id", SqlOrderDirection.DESC).limit(startPage, App.newItemLoadNumber)
+                        .parseList {
+                            val item = newListItem(it[newListTable.postid].toString(),
+                                    it[newListTable.title].toString(),
+                                    it[newListTable.digest].toString(),
+                                    it[newListTable.imgsrc].toString(),
+                                    it[newListTable.ptime].toString(), null)
+                            newList.add(item)
+                        }
+                newList.forEach {
+                    if (it.digest.isNullOrEmpty()) {
+                        var photoList = ArrayList<photoset>()
+                        select(newListPhotoSetTable.NAME).whereSimple("${newListPhotoSetTable.postid} = ?", it.postid)
+                                .parseList {
+                                    val item = photoset(it[newListPhotoSetTable.skipID].toString(),
+                                            it[newListPhotoSetTable.title].toString(),
+                                            it[newListPhotoSetTable.imgsrc].toString())
+                                    photoList.add(item)
+                                }
+                        it.ads = photoList
                     }
-            newList.forEach {
-                if (it.digest.isNullOrEmpty()) {
-                    var photoList = ArrayList<photoset>()
-                    select(newListPhotoSetTable.NAME).whereSimple("${newListPhotoSetTable.postid} = ?", it.postid)
-                            .parseList {
-                                val item = photoset(it[newListPhotoSetTable.skipID].toString(),
-                                        it[newListPhotoSetTable.title].toString(),
-                                        it[newListPhotoSetTable.imgsrc].toString())
-                                photoList.add(item)
-                            }
-                    it.ads = photoList
                 }
+                log("数据库获取到数据:$newList")
+                if (!newList.isNullOrEmpty()) log("本地获取数据成功 获取${newList.size}条数据") else log("本地获取数据失败")
+                log("数据库查询耗时：${System.currentTimeMillis() - start}")
+                newList
             }
-
+        }catch (e: Exception){
+            log(e.message)
+            return null
         }
-        log("数据库获取到数据:$newList")
-        if (!newList.isNullOrEmpty()) log("本地获取数据成功 获取${newList.size}条数据") else log("本地获取数据失败")
-        log("数据库查询耗时：${System.currentTimeMillis() - start}")
-        return newList
     }
 
     fun saveNewList(result: List<newListItem>, channlId: String) = newdbHelper.use {

@@ -12,12 +12,6 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.navigation_home -> {
 
-//                val switchTimeStrToLong = "2017-07-24 16:01:26".switchTimeStrToLong()
-//                val switchTimeStrToLong = JavaUtil.switchTimeStrToLong("2017-07-24 16:01:26")
-//                log(switchTimeStrToLong.toString())
-//                javaCodeTest.main(null)
-//                val sdf= SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-//                log(sdf.format(switchTimeStrToLong))
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_dashboard -> {
